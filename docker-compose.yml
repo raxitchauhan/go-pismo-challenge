@@ -1,0 +1,58 @@
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    command: go run cmd/api/main.go
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/go/src/app
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+
+  migration:
+    build: .
+    command: go run cmd/migration/main.go
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+  unit-test:
+    env_file:
+      - .env
+    build: 
+      context: .
+      dockerfile: unittest.Dockerfile
+    # command: go test -v -parallel=4 -cover -race ./...
+
+  lint:
+    build: 
+      context: .
+      dockerfile: unittest.Dockerfile
+    command: golangci-lint --timeout=5m run
+
+volumes:
+  postgres-db:

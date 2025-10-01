@@ -1,0 +1,192 @@
+basePath: /v1
+definitions:
+  model.Account:
+    properties:
+      created_at:
+        example: "2025-10-01T06:22:46.931755Z"
+        format: time
+        type: string
+      document_number:
+        example: some-string
+        format: string
+        type: string
+      uuid:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+    type: object
+  model.AccountRequest:
+    properties:
+      document_number:
+        example: some-string
+        format: string
+        type: string
+      idempotency_key:
+        example: some-string
+        format: string
+        type: string
+    type: object
+  model.AccountResponse:
+    properties:
+      uuid:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+    type: object
+  model.TransactionRequest:
+    properties:
+      account_uuid:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+      amount:
+        example: 1.1
+        format: float64
+        type: number
+      idempotency_key:
+        example: some-string
+        format: string
+        type: string
+      operation_type_id:
+        example: 1
+        format: int64
+        type: integer
+    type: object
+  model.TransactionResponse:
+    properties:
+      uuid:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+    type: object
+  util.ErrorDescription:
+    properties:
+      code:
+        type: string
+      detail:
+        type: string
+      id:
+        type: string
+      source:
+        $ref: '#/definitions/util.FieldError'
+      status:
+        type: integer
+      title:
+        type: string
+    type: object
+  util.ErrorResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/util.ErrorDescription'
+        type: array
+    type: object
+  util.FieldError:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: This is an API documentation for Pismo challenge
+  title: Pismo API
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: Create an Account.
+      parameters:
+      - description: Add account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.AccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Returns Generated Account UUID
+      tags:
+      - accounts
+  /accounts/{uuid}:
+    get:
+      consumes:
+      - application/json
+      description: Get an Account by UUID.
+      parameters:
+      - description: Account UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Account'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Returns an Account
+      tags:
+      - accounts
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Create a transaction.
+      parameters:
+      - description: Add transaction request
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/model.TransactionRequest'
+      - description: User status
+        in: query
+        name: operation_type_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Returns Generated Transaction UUID
+      tags:
+      - transactions
+swagger: "2.0"
