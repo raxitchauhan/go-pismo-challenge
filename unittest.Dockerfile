@@ -5,7 +5,7 @@ RUN apk add --no-cache \
 
 RUN go env -w CGO_ENABLED=1
 
-WORKDIR $GOPATH/src/go-pismo-challenge
+WORKDIR $GOPATH/src/app
 
 COPY --from=golangci/golangci-lint:v2.5-alpine /usr/bin/golangci-lint /usr/local/bin/golangci-lint
 

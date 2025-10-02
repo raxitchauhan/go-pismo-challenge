@@ -8,6 +8,11 @@ import (
 	"go-pismo-challenge/pkg/handler"
 	"go-pismo-challenge/pkg/repository"
 	"go-pismo-challenge/pkg/server"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -21,20 +26,27 @@ type Service struct {
 // @version 1.0
 // @description This is an API documentation for Pismo challenge
 // @host localhost:3000
-// @BasePath /v1
+// @BasePath /api/v1
 func main() {
-	ctx := context.Background()
-	done := NewService().Run(ctx)
+	// create a root context that can be cancelled
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	done := NewService(ctx).Run(ctx)
 
 	<-done
 }
 
-func NewService() *Service {
+func NewService(ctx context.Context) *Service {
 	cfg := config.LoadConfig()
 
 	db, err := database.NewConnection(cfg.DSN(), cfg.DatabaseMaxOpenConns)
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf("failed to establish db connection: %w", err))
+		log.Fatal().Err(fmt.Errorf("failed to establish database connection: %w", err))
+	}
+
+	if err := database.MigrationVersionCheck(ctx, db, cfg.DatabaseMigrationTable, cfg.DatabaseMinVersion); err != nil {
+		log.Fatal().Err(fmt.Errorf("failed while checking database migration version: %w", err))
 	}
 
 	accountRepo := repository.NewAccountRepo(db)
@@ -51,9 +63,20 @@ func NewService() *Service {
 }
 
 func (s *Service) Run(ctx context.Context) <-chan struct{} {
-	if err := server.Start(s.accountHandler, s.trxHandler); err != nil {
+	webServer := server.NewServer(s.accountHandler, s.trxHandler)
+	if err := webServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal().Err(err)
 	}
+
+	defer func() {
+		// create a new context for shutdown timeout
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := webServer.Shutdown(shutdownCtx); err != nil {
+			log.Fatal().Err(err).Msg("server shutdown failed")
+		}
+	}()
 
 	return ctx.Done()
 }

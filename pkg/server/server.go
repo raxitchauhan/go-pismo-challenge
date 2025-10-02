@@ -5,8 +5,11 @@ import (
 	"net/http"
 )
 
-func Start(a *handler.Account, t *handler.Transaction) error {
+func NewServer(a *handler.Account, t *handler.Transaction) *http.Server {
 	r := NewRouter(a, t)
 
-	return http.ListenAndServe(":3000", r)
+	return &http.Server{
+		Addr:    ":3000",
+		Handler: r,
+	}
 }

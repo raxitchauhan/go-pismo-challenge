@@ -10,7 +10,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-func Run(ctx context.Context, dsn string, migrationFS fs.FS) error {
+func Run(ctx context.Context, dsn string, migrationTable string, migrationFS fs.FS) error {
 	db, err := database.NewConnection(dsn, 1)
 	if err != nil {
 		return fmt.Errorf("failed to establish db connection: %w", err)
@@ -24,7 +24,7 @@ func Run(ctx context.Context, dsn string, migrationFS fs.FS) error {
 		)
 	}
 
-	goose.SetTableName("db_version_pismo")
+	goose.SetTableName(migrationTable)
 	goose.SetLogger(&logger{})
 	goose.SetVerbose(true)
 

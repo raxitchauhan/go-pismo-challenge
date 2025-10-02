@@ -12,7 +12,7 @@ func main() {
 	cfg := config.LoadConfig()
 
 	// run migration
-	if err := migrator.Run(context.Background(), cfg.DSN(), migrator.FS); err != nil {
+	if err := migrator.Run(context.Background(), cfg.DSN(), cfg.DatabaseMigrationTable, migrator.FS); err != nil {
 		log.Fatal().Err(err).Msg("failed to apply migration")
 	}
 

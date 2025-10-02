@@ -23,6 +23,18 @@ services:
       db:
         condition: service_healthy
 
+  unit-test:
+    build: 
+      context: .
+      dockerfile: unittest.Dockerfile
+    env_file: .env
+
+  lint:
+    build: 
+      context: .
+      dockerfile: unittest.Dockerfile
+    command: golangci-lint --timeout=5m run
+
   db:
     image: postgres:17
     environment:
@@ -39,19 +51,6 @@ services:
       timeout: 10s
     volumes:
       - postgres-db:/var/lib/postgresql/data
-
-  unit-test:
-    env_file:
-      - .env
-    build: 
-      context: .
-      dockerfile: unittest.Dockerfile
-
-  lint:
-    build: 
-      context: .
-      dockerfile: unittest.Dockerfile
-    command: golangci-lint --timeout=5m run
 
 volumes:
   postgres-db:
