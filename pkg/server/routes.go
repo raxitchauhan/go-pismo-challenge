@@ -16,13 +16,13 @@ func NewRouter(a *handler.Account, t *handler.Transaction) *chi.Mux {
 	router.Use(middleware.Recoverer)
 
 	// accounts
-	router.Route("/v1/accounts", func(r chi.Router) {
+	router.Route("/api/v1/accounts", func(r chi.Router) {
 		r.Post("/", a.Create)
 		r.Get("/{uuid}", a.Get)
 	})
 
 	// transactions
-	router.Route("/v1/transactions", func(r chi.Router) {
+	router.Route("/api/v1/transactions", func(r chi.Router) {
 		r.Post("/", t.Create)
 	})
 

@@ -1,18 +1,6 @@
 package migrator
 
 import (
-	// "context"
-	// "database/sql"
-	// "errors"
-	// "fmt"
-	// "os"
-	// "path"
-	// "strings"
-	// "time"
-
-	// "github.com/pressly/goose/v3"
-	// Load drivers for MySQL and Postgres
-
 	"context"
 	"fmt"
 	"go-pismo-challenge/pkg/database"

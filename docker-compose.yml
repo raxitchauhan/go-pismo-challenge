@@ -46,7 +46,6 @@ services:
     build: 
       context: .
       dockerfile: unittest.Dockerfile
-    # command: go test -v -parallel=4 -cover -race ./...
 
   lint:
     build: 
