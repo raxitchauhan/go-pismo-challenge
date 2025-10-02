@@ -13,13 +13,53 @@ payment), an amount, and a creation date.
 - Purchase and withdrawal transactions are recorded with a negative value, while
 payment transactions are recorded with a positive value.
 
+This service contains base apis' to create accounts and transactions and view accounts.
+
+
+## API Reference
+
+#### Create Account
+
+```http
+  POST /api/v1/accounts
+```
+Request Body:
+| Parameter         | Type     | Description                   |
+| :-----------------| :------- | :-----------------------------|
+| `document_number` | `string` | **Required**. Document Number |
+| `idempotency_key` | `string` | **Required**. Idempotency Key |
+
+#### Get Account
+
+```http
+  GET /api/v1/accounts/{uuid}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `uuid`    | `uuid`   | **Required**. Account UUID        |
+
+#### Create Transaction
+
+
+```http
+  POST /api/v1/transactions
+```
+Request Body:
+| Parameter          | Type     | Description                     |
+| :------------------| :------- | :-------------------------------|
+| `idempotency_key`  | `string` | **Required**. Idempotency Key   |
+| `account_uuid`     | `uuid`   | **Required**. IdempotencyKey    |
+| `operation_type_id`| `int`    | **Required**. Operation Type ID |
+| `amount`           | `string` | **Required**. amount            |
+
 ## Getting Started
 
 ### Prerequisites
 
 - Docker
 - Make
-- Any IDE
+- Any IDE of choice
 
 ### Installation
 
@@ -49,16 +89,6 @@ Verify installation.
 ```bash
 make -v
 ```
-
-### Docker
-
-https://www.docker.com/get-started/
-
-### IDE
-
-Suggested: Visual Studio Code
-
-https://code.visualstudio.com/download
 
 #### On Windows:
 
@@ -92,10 +122,19 @@ xcode-select --install
 
 Verify installation.
 
-
 ```bash
 make -v
 ```
+
+### Docker
+
+https://www.docker.com/get-started/
+
+### IDE
+
+Suggested: Visual Studio Code
+
+https://code.visualstudio.com/download
 
 ## Usage
 ### Available Makefile Commands
@@ -122,6 +161,14 @@ What it does:
 - Provides access to Swagger API Docs at http://localhost:3000/swagger/index.html for easy exploration of available endpoints.
 - Useful for development or testing the service in a local environment.
 
+```bash
+make build
+```
+
+What it does:
+
+- Builds images for api and migration image that can be later used to deploy & run
+
 ### `make test`
 
 ****Description:****  
@@ -143,6 +190,41 @@ What it does:
 
 Sets up a container and runs database migrations within it. Useful for setting up the correct database schema for your application.
 
+Migrations are available [here](https://github.com/raxitchauhan/go-pismo-challenge/tree/main/pkg/migrator/migrations)
+
+```sql
+-- accounts.account definition
+CREATE TABLE accounts.account (
+	id serial4 NOT NULL,
+	"uuid" text NOT NULL,
+	document_number text NOT NULL,
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT account_pkey PRIMARY KEY (id),
+	CONSTRAINT account_uuid_key UNIQUE (uuid)
+);
+
+-- transactions.operation_types definition
+CREATE TABLE transactions.operation_types (
+	operation_type_id serial4 NOT NULL,
+	description text NOT NULL,
+	is_credit bool NOT NULL,
+	CONSTRAINT operation_types_description_key UNIQUE (description),
+	CONSTRAINT operation_types_pkey PRIMARY KEY (operation_type_id)
+);
+
+-- transactions."transaction" definition
+CREATE TABLE transactions."transaction" (
+	id serial4 NOT NULL,
+	"uuid" text NOT NULL,
+	account_uuid text NOT NULL,
+	operation_type_id int4 NOT NULL,
+	amount numeric(10, 2) DEFAULT 0 NULL,
+	event_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT transaction_pkey PRIMARY KEY (id),
+	CONSTRAINT transaction_uuid_key UNIQUE (uuid)
+);
+```
+
 **Usage:**
 
 ```bash
@@ -154,6 +236,7 @@ What it does:
 - Creates a Docker container for the migration process.
 - Runs any pending database migrations within the container.
 - Ensures the database is up-to-date with the latest schema changes.
+- Populates the OperationTypes for initial use
 
 ### `make unit-test`
 
