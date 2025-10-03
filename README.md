@@ -146,6 +146,8 @@ https://code.visualstudio.com/download
 
 Boots up the service and makes it available for testing and development. You can interact with the APIs and access documentation.
 
+Postman collection is available [here](https://github.com/raxitchauhan/go-pismo-challenge/tree/main/postman).
+
 **Usage:**
 
 ```bash
