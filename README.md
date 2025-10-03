@@ -137,11 +137,8 @@ Suggested: Visual Studio Code
 https://code.visualstudio.com/download
 
 ## Usage
-### Available Makefile Commands
 
-Available commands in the Makefile for managing and working with the project.
-
----
+### Play with the API
 
 ### `make boot`
 
@@ -157,9 +154,25 @@ make boot
 
 What it does:
 
+- Runs the migration to the latest version to support the api.
 - Starts the application on http://localhost:3000, making the API available for use.
 - Provides access to Swagger API Docs at http://localhost:3000/swagger/index.html for easy exploration of available endpoints.
 - Useful for development or testing the service in a local environment.
+
+
+### Additional Makefile Commands
+
+Available commands in the Makefile for managing and working with the project.
+
+---
+
+### `make build`
+
+**Description:**
+
+Builds the migrator and api image.
+
+**Usage:**
 
 ```bash
 make build
@@ -167,7 +180,7 @@ make build
 
 What it does:
 
-- Builds images for api and migration image that can be later used to deploy & run
+- Build images for api and migration image that can later be used to deploy on a server (ECS/k8s pod).
 
 ### `make test`
 

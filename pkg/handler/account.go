@@ -90,12 +90,12 @@ func (a *Account) Create(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
 	account := model.Account{
 		UUID:           accountUUID,
 		DocumentNumber: req.DocumentNumber,
 		CreatedAt:      time.Now(),
 	}
-
 	if err := a.accountRepo.Create(r.Context(), account); err != nil {
 		err = util.WriteJSONError(w, http.StatusInternalServerError, util.ErrorDescription{
 			Status:  http.StatusInternalServerError,

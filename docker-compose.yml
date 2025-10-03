@@ -27,7 +27,6 @@ services:
     build: 
       context: .
       dockerfile: unittest.Dockerfile
-    env_file: .env
 
   lint:
     build: 
