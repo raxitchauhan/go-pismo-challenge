@@ -32,9 +32,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	done := NewService(ctx).Run(ctx)
-
-	<-done
+	NewService(ctx).Run(ctx)
 }
 
 func NewService(ctx context.Context) *Service {
@@ -62,11 +60,13 @@ func NewService(ctx context.Context) *Service {
 	}
 }
 
-func (s *Service) Run(ctx context.Context) <-chan struct{} {
+func (s *Service) Run(ctx context.Context) {
 	webServer := server.NewServer(s.accountHandler, s.trxHandler)
-	if err := webServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal().Err(err)
-	}
+	go func() {
+		if err := webServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal().Err(err)
+		}
+	}()
 
 	defer func() {
 		// create a new context for shutdown timeout
@@ -78,5 +78,5 @@ func (s *Service) Run(ctx context.Context) <-chan struct{} {
 		}
 	}()
 
-	return ctx.Done()
+	<-ctx.Done()
 }

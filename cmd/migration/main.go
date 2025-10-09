@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	log.Info().Msg("initiating migration")
 	cfg := config.LoadConfig()
 
 	// run migration
@@ -16,5 +17,5 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to apply migration")
 	}
 
-	log.Info().Msg("migration applied successfully")
+	log.Info().Msg("migration successfully")
 }
