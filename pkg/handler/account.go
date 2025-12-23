@@ -146,6 +146,8 @@ func (a *Account) Get(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("failed to write error resposne")
+
+			return
 		}
 	}
 	account, err := a.accountRepo.Get(r.Context(), uuid)
